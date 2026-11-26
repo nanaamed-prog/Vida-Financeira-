@@ -1,0 +1,6 @@
+{
+  "name": "Vida Financeira",
+  "description": "Plataforma completa de formação financeira e gestão patrimonial inteligente: do caos à independência financeira com diagnósticos, trilhas educativas, controle orçamentário, central de dívidas, simuladores e IA Financeira.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
