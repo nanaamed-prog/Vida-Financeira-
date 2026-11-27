@@ -1,0 +1,41 @@
+# Publica o app no GitHub Pages (branch gh-pages) a cada atualização na main.
+# O APK Android abre esse endereço, então as mudanças chegam ao celular
+# automaticamente, sem reinstalar.
+name: Publicar app (atualização automática)
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'android/**'
+      - '**.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: Build
+        run: bunx vite build
+        env:
+          # Opcional: URL de um servidor com a IA Gemini (server.ts). Sem ela, usa o motor local.
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+      - run: touch dist/.nojekyll
+      - name: Publicar na branch gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+          force_orphan: true
+          commit_message: 'deploy: ${{ github.sha }}'

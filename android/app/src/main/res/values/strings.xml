@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Vida Financeira</string>
+    <string name="offline_title">Sem conexão</string>
+    <string name="offline_message">Conecte-se à internet para abrir o Vida Financeira pela primeira vez. Depois disso, o app também funciona offline.</string>
+    <string name="retry">Tentar novamente</string>
+    <string name="webview_old_title">Atualize o WebView</string>
+    <string name="webview_old_message">O componente \"Android System WebView\" deste aparelho está desatualizado e algumas telas podem não aparecer corretamente. Atualize-o gratuitamente na Play Store.</string>
+    <string name="update">Atualizar</string>
+    <string name="later">Depois</string>
+</resources>

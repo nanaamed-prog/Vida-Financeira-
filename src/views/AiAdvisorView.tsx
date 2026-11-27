@@ -15,6 +15,10 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { useFinancial } from '../context/FinancialContext';
+import { generateLocalFinancialAdvice } from '../lib/localAdvisor';
+
+// URL do servidor de IA (opcional). Sem ela, o app usa o motor local (funciona offline).
+const API_BASE_URL: string = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
 
 interface Message {
   role: 'user' | 'assistant';
@@ -73,54 +77,46 @@ export const AiAdvisorView: React.FC = () => {
     setInputQuery('');
     setIsLoading(true);
 
+    const totalDebts = debts.reduce((acc, d) => acc + d.currentBalance, 0);
+    const userContext = {
+      income: monthlyIncome,
+      expenses: monthlyExpenses,
+      savingsCapacity: monthlySavings,
+      balance: availableBalance,
+      netWorth,
+      emergencyFund: emergencyFund.currentAmount,
+      emergencyTarget: emergencyFund.essentialMonthlyExpenses * emergencyFund.targetMonths,
+      totalDebts,
+      investments: goals.reduce((acc, g) => acc + g.currentAmount, 0),
+      financialLevel: `Nível ${financialLevel}`,
+      healthScore,
+    };
+    const history = messages.slice(-6).map((m) => ({ role: m.role, text: m.content }));
+    const now = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
     try {
-      const response = await fetch('/api/ai/advisor', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query,
-          financialState: {
-            netWorth,
-            availableBalance,
-            monthlyIncome,
-            monthlyExpenses,
-            monthlySavings,
-            healthScore,
-            financialLevel,
-            emergencyFund,
-            debts,
-            goals,
-          },
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Falha ao comunicar com o servidor');
+      let reply = '';
+      if (API_BASE_URL && (typeof navigator === 'undefined' || navigator.onLine !== false)) {
+        try {
+          const response = await fetch(API_BASE_URL + '/api/ai/advisor', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: query, userContext, history }),
+          });
+          if (response.ok) {
+            const data = await response.json();
+            reply = data.reply || '';
+          }
+        } catch (e) {
+          console.warn('Servidor de IA indisponível, usando motor local.', e);
+        }
       }
-
-      const data = await response.json();
-      const assistantMsg: Message = {
-        role: 'assistant',
-        content: data.reply || 'Desculpe, não consegui processar a resposta no momento.',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      };
-
-      setMessages((prev) => [...prev, assistantMsg]);
+      if (!reply) {
+        reply = generateLocalFinancialAdvice(query, userContext);
+      }
+      setMessages((prev) => [...prev, { role: 'assistant', content: reply, timestamp: now() }]);
     } catch (err) {
       console.error(err);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          content:
-            '💡 **Orientação Rápida:** Com base nos seus números (R$ ' +
-            monthlyIncome.toLocaleString('pt-BR') +
-            ' de renda e R$ ' +
-            monthlyExpenses.toLocaleString('pt-BR') +
-            ' de despesas), priorize sempre liquidar qualquer dívida com juros acima de 3% a.m. e manter 6 meses de despesas essenciais em Tesouro Selic antes de assumir novos compromissos parcelados.',
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        },
-      ]);
     } finally {
       setIsLoading(false);
     }
