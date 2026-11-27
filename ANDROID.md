@@ -28,7 +28,7 @@ você faz uma mudança aqui → push na branch main → GitHub Actions publica n
 
 ## Configuração única no GitHub (obrigatória)
 
-1. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
+1. O Pages é publicado na branch `gh-pages`. Se o site der 404, confira em **Settings → Pages** se a fonte está em **Deploy from a branch → gh-pages / (root)**.
 2. Para o workflow **Gerar APK Android** assinar com a mesma chave do APK já instalado
    (senão o Android não deixa atualizar por cima), crie em
    **Settings → Secrets and variables → Actions**:
