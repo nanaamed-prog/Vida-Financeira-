@@ -21,7 +21,9 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
+      # O runner ubuntu-latest já tem o Android SDK instalado (ANDROID_HOME)
+      - name: Aceitar licenças do SDK
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
 
       - name: Preparar chave de assinatura
         env:
