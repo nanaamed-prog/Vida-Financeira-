@@ -1,0 +1,51 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Endereço onde o app web é publicado (GitHub Pages). O APK apenas abre este
+// endereço, então qualquer atualização publicada aparece sem reinstalar o app.
+def appUrl = project.findProperty('APP_URL') ?: 'https://nanaamed-prog.github.io/Vida-Financeira-/'
+
+android {
+    namespace 'com.vidafinanceira.app'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.vidafinanceira.app'
+        minSdk 21          // Android 5.0 Lollipop
+        targetSdk 35
+        versionCode((project.findProperty('VERSION_CODE') ?: '1') as int)
+        versionName project.findProperty('VERSION_NAME') ?: '1.0.0'
+        buildConfigField 'String', 'APP_URL', "\"${appUrl}\""
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    signingConfigs {
+        release {
+            def ks = System.getenv('ANDROID_KEYSTORE_FILE')
+            if (ks && file(ks).exists()) {
+                storeFile file(ks)
+                storePassword System.getenv('ANDROID_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('ANDROID_KEY_ALIAS')
+                keyPassword System.getenv('ANDROID_KEY_PASSWORD')
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release.storeFile ? signingConfigs.release : signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}

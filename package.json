@@ -1,5 +1,5 @@
 {
-  "name": "react-example",
+  "name": "vida-financeira",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,7 +9,9 @@
     "start": "node dist/server.cjs",
     "preview": "vite preview",
     "clean": "rm -rf dist server.cjs",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "build:web": "vite build",
+    "android:apk": "cd android && ./gradlew assembleRelease"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
@@ -25,12 +27,18 @@
     "vite": "^6.2.3"
   },
   "devDependencies": {
+    "@csstools/postcss-cascade-layers": "^6.0.2",
     "@types/canvas-confetti": "^1.9.0",
     "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",
+    "@vitejs/plugin-legacy": "^6",
     "autoprefixer": "^10.4.21",
+    "browserslist": "^4.29.6",
     "esbuild": "^0.25.0",
+    "lightningcss": "^1.33.0",
+    "postcss": "^8.5.33",
     "tailwindcss": "^4.1.14",
+    "terser": "^5.51.4",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.3"
